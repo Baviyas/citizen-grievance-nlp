@@ -7,22 +7,55 @@ This project is an AI-based system designed to analyze and categorize government
 * **Data Cleaning:** Automated handling of missing values and date parsing.
 * **NLP Pipeline:** Text cleaning, stopword removal (including custom civic terms), and lemmatization.
 * **EDA & Insights:** Visualizations of grievance trends, borough-wise heatmaps, and N-gram frequency analysis.
+* **Label Mapping:** Consolidated 17+ types into 4 core "Super-Departments" to fix class imbalance.
+* **Vectorization:** Converted text to numeric matrices using TF-IDF (Unigrams/Bigrams).
+* **Supervised Learning:** Evaluated Logistic Regression and Random Forest via 3-Fold Stratified CV.
+* **Routing Engine:** Developed an inference helper for real-time, automated complaint routing.
 
-## Installation
+## 📂 Repository Structure
+
+```plaintext
+├── data/
+│   ├── raw/                 # Original NYC 311 Grievance CSV
+│   └── cleaned/             # Cleaned data
+│   └── processed/           # Processed data
+├── notebooks/
+│   ├── 01_data_cleaning.ipynb            # Structural auditing
+│   ├── 02_text_preprocessing.ipynb       # Lemmatization & Tokenization
+│   ├── 03_eda_visualizations.ipynb       # Trends, Heatmaps & WordClouds
+│   └── 04_complaint_routing_model.ipynb  # TF-IDF, RF training & CV
+├── models/                  # Saved .pkl files (Pipeline & LabelEncoder)
+├── outputs/                 # Visualization PNGs & Metrics
+└── requirements.txt         # Project dependencies and libraries
+```
+
+## ⚙️ Installation & Setup
 
 Ensure you have Python installed, then clone the repository and install the necessary dependencies:
 
+1. Clone the repository:
 ```bash
-pip install -r requirements.txt
-
+git clone https://github.com/Baviyas/citizen-grievance-nlp.git
+cd citizen-grievance-nlp
 ```
 
-## Project Structure
+2. Install Dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## 🛠️ Project Structure
 
 1. **`01_data_cleaning.ipynb`**: Handles raw data collection and structural cleanup.
 2. **`02_text_preprocessing.ipynb`**: Runs the NLP pipeline to prepare text for machine learning.
 3. **`03_eda_visualizations.ipynb`**: Generates statistical charts and word clouds.
+4. **`04_complaint_routing_model.ipynb`**: Implements TF-IDF vectorization, Supervised Learning (LR & RF), Stratified 3-Fold Cross-Validation, and Inference testing.
 
-## 📈 Next Steps
+## 👥 Contributors
 
-Future updates will include **Week 2** modules: TF-IDF vectorization and grievance classification using Naive Bayes and SVM models.
+| Name | GitHub Account |
+| :--- | :--- |
+| **Vasi Khan** | https://github.com/vasi2904k |
+| **Bhumi Shah** | https://github.com/code-with-bhumi |
+| **Bhavya** | https://github.com/Baviyas|
