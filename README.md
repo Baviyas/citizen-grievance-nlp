@@ -9,7 +9,7 @@ This project is an AI-based system designed to analyze and categorize government
 * **EDA & Insights:** Visualizations of grievance trends, borough-wise heatmaps, and N-gram frequency analysis.
 * **Label Mapping:** Consolidated 17+ types into 4 core "Super-Departments" to fix class imbalance.
 * **Vectorization:** Converted text to numeric matrices using TF-IDF (Unigrams/Bigrams).
-* **Supervised Learning:** Evaluated Logistic Regression and Random Forest via 3-Fold Stratified CV.
+* **Supervised Learning:** Evaluated Logistic Regression and Random Forest via 5-Fold Stratified CV.
 * **Routing Engine:** Developed an inference helper for real-time, automated complaint routing.
 * **Sentiment Analysis:** Added sentiment scoring and urgency classification for enhanced grievance prioritization.
 
@@ -29,6 +29,7 @@ This project is an AI-based system designed to analyze and categorize government
 ├── models/                  # Saved .pkl files (Pipeline, LabelEncoder, Sentiment models)
 ├── outputs/                 # Visualization PNGs & Metrics
 └── requirements.txt         # Project dependencies and libraries
+```
 
 ## ⚙️ Installation & Setup
 
@@ -52,7 +53,7 @@ pip install -r requirements.txt
 2. **`02_text_preprocessing.ipynb`**: Runs the NLP pipeline to prepare text for machine learning.
 3. **`03_eda_visualizations.ipynb`**: Generates statistical charts and word clouds.
 4. **`04_complaint_routing_model.ipynb`**: Implements TF-IDF vectorization, Supervised Learning (LR & RF), Stratified 3-Fold Cross-Validation, and Inference testing.
-5.**`05_Sentiment_Analysis_and_Urgency_Scoring.ipynb`**: Fine-tunes a distil Roberta-base Transformer (RoBERTa) to classify every grievance into 4 sentiment classes — Positive, Neutral, Negative, and Critical/Urgent — and assigns a mathematical urgency score to each complaint.
+5. **`05_Sentiment_Analysis_and_Urgency_Scoring.ipynb`**: Fine-tunes a distil Roberta-base Transformer (RoBERTa) to classify every grievance into 4 sentiment classes — Positive, Neutral, Negative, and Critical/Urgent — and assigns a mathematical urgency score to each complaint.
 
 ## 👥 Contributors
 

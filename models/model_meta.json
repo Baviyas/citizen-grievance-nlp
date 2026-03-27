@@ -1,0 +1,10 @@
+{
+  "best_model": "Logistic Regression",
+  "test_accuracy": 0.998384,
+  "classes": [
+    "Environment",
+    "Non-Complaint",
+    "Social & Health Services",
+    "Transport"
+  ]
+}
