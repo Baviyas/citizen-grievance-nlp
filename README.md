@@ -9,7 +9,7 @@ This project is an AI-based system designed to analyze and categorize government
 * **EDA & Insights:** Visualizations of grievance trends, borough-wise heatmaps, and N-gram frequency analysis.
 * **Label Mapping:** Consolidated 17+ types into 4 core "Super-Departments" to fix class imbalance.
 * **Vectorization:** Converted text to numeric matrices using TF-IDF (Unigrams/Bigrams).
-* **Supervised Learning:** Evaluated Logistic Regression and Random Forest via 3-Fold Stratified CV.
+* **Supervised Learning:** Evaluated Logistic Regression and Random Forest via 5-Fold Stratified CV.
 * **Routing Engine:** Developed an inference helper for real-time, automated complaint routing.
 * **Sentiment Analysis:** Added sentiment scoring and urgency classification for enhanced grievance prioritization.
 
