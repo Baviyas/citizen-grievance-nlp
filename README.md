@@ -1,65 +1,148 @@
-# AI-Driven Citizen Grievance & Sentiment Analysis System
+# AI-Driven Citizen Grievance Analysis System
 
-This project is an AI-based system designed to analyze and categorize government grievances using the _NYC 311 Service Requests_ dataset. The pipeline covers everything from raw data ingestion to advanced NLP preprocessing and visual insights.
+> Week 4 Deliverable: API Development, Evaluation, and Final Deployment
 
-## Features
+## Overview
 
-* **Data Cleaning:** Automated handling of missing values and date parsing.
-* **NLP Pipeline:** Text cleaning, stopword removal (including custom civic terms), and lemmatization.
-* **EDA & Insights:** Visualizations of grievance trends, borough-wise heatmaps, and N-gram frequency analysis.
-* **Label Mapping:** Consolidated 17+ types into 4 core "Super-Departments" to fix class imbalance.
-* **Vectorization:** Converted text to numeric matrices using TF-IDF (Unigrams/Bigrams).
-* **Supervised Learning:** Evaluated Logistic Regression and Random Forest via 5-Fold Stratified CV.
-* **Routing Engine:** Developed an inference helper for real-time, automated complaint routing.
-* **Sentiment Analysis:** Added sentiment scoring and urgency classification for enhanced grievance prioritization.
+Complete AI-driven system for analyzing citizen grievances and routing them to municipal departments with urgency scoring.
 
-## 📂 Repository Structure
+**Components:**
+- Sentiment Analysis: 4-class transformer (positive/neutral/negative/critical)
+- Department Classification: 6-class routing classifier
+- Urgency Scoring: Multi-factor priority calculation
+- FastAPI: Production-ready REST API
 
-```plaintext
-├── data/
-│   ├── raw/                 # Original NYC 311 Grievance CSV
-│   ├── cleaned/             # Cleaned data
-│   └── processed/           # Processed data (with sentiment & urgency)
-├── notebooks/
-│   ├── 01_data_cleaning.ipynb                    # Structural auditing
-│   ├── 02_text_preprocessing.ipynb               # Lemmatization & Tokenization
-│   ├── 03_eda_visualizations.ipynb               # Trends, Heatmaps & WordClouds
-│   ├── 04_complaint_routing_model.ipynb          # TF-IDF, RF training & CV
-│   └── 05_Sentiment_Analysis_and_Urgency_Scoring.ipynb  # Sentiment & urgency analysis
-├── models/                  # Saved .pkl files (Pipeline, LabelEncoder, Sentiment models)
-├── outputs/                 # Visualization PNGs & Metrics
-└── requirements.txt         # Project dependencies and libraries
+## Architecture
+
+```
+Citizen Complaint Text (Input)
+          |
+    Preprocessing
+          |
+   +-----------+   +------------------+
+   | Sentiment |   |   Department     |
+   | Classifier|   |   Classifier     |
+   +-----------+   +------------------+
+          |               |
+     Urgency Calculator
+          |
+   Prediction Output
+   - Department
+   - Sentiment
+   - Priority
+   - Action
 ```
 
-## ⚙️ Installation & Setup
+## Model Evaluation Results
 
-Ensure you have Python installed, then clone the repository and install the necessary dependencies:
+| Model | Accuracy | F1-Score | Precision | Recall |
+|-------|----------|----------|-----------|--------|
+| Sentiment | 87.50% | 0.8642 | 87.58% | 87.50% |
+| Department | 83.33% | 0.8301 | 83.90% | 83.33% |
 
-1. Clone the repository:
-```bash
-git clone https://github.com/Baviyas/citizen-grievance-nlp.git
-cd citizen-grievance-nlp
+## API Endpoints
+
+### POST /predict - Single Complaint Prediction
+
+Request:
+```json
+{"complaint_text": "Water pipe is broken near my house. URGENT!"}
 ```
 
-2. Install Dependencies:
+Response:
+```json
+{
+  "predicted_department": "water_supply",
+  "department_confidence": 0.9542,
+  "sentiment": "critical",
+  "sentiment_confidence": 0.9123,
+  "urgency_score": 9.25,
+  "priority": "CRITICAL",
+  "recommended_action": "Dispatch emergency team immediately.",
+  "timestamp": "2024-01-15T10:30:45"
+}
+```
+
+### POST /batch_predict - Bulk Processing (up to 100 complaints)
+### GET /health - API and model health status
+### GET /metrics - Model performance metrics
+### GET /docs - Interactive Swagger UI
+### GET /redoc - ReDoc documentation
+
+## Installation & Setup
 
 ```bash
+# 1. Install dependencies
 pip install -r requirements.txt
+cd api && pip install -r requirements.txt && cd ..
+
+# 2. Run notebooks in order
+jupyter nbconvert --to notebook --execute 08_Model_Evaluation.ipynb
+jupyter nbconvert --to notebook --execute 09_Model_Serialization.ipynb
+jupyter nbconvert --to notebook --execute 10_FastAPI_Development.ipynb
+
+# 3. Start API server
+cd api && python app.py
+
+# 4. Visit: http://localhost:8000/docs
 ```
 
-## 🛠️ Project Structure
+## Testing
 
-1. **`01_data_cleaning.ipynb`**: Handles raw data collection and structural cleanup.
-2. **`02_text_preprocessing.ipynb`**: Runs the NLP pipeline to prepare text for machine learning.
-3. **`03_eda_visualizations.ipynb`**: Generates statistical charts and word clouds.
-4. **`04_complaint_routing_model.ipynb`**: Implements TF-IDF vectorization, Supervised Learning (LR & RF), Stratified 3-Fold Cross-Validation, and Inference testing.
-5. **`05_Sentiment_Analysis_and_Urgency_Scoring.ipynb`**: Fine-tunes a distil Roberta-base Transformer (RoBERTa) to classify every grievance into 4 sentiment classes — Positive, Neutral, Negative, and Critical/Urgent — and assigns a mathematical urgency score to each complaint.
+```bash
+cd api
+pytest test_api.py -v
+# Expected: 22 passed, coverage 95%
+```
 
-## 👥 Contributors
+## Priority Levels
 
-| Name | GitHub Account |
-| :--- | :--- |
-| **Vasi Khan** | https://github.com/vasi2904k |
-| **Bhumi Shah** | https://github.com/code-with-bhumi |
-| **Baviya** | https://github.com/Baviyas|
+| Priority | Score | Response Time | Example |
+|----------|-------|---------------|----------|
+| CRITICAL | 8-10 | Immediate (30 min) | Fire, flood, trapped |
+| HIGH | 6-7.9 | 24 hours | Broken pipe, no power |
+| MEDIUM | 3-5.9 | 3 days | Minor damage, repair |
+| LOW | 0-2.9 | 7 days | Routine maintenance |
 
+## Project Structure
+
+```
+citizen-grievance-analysis/
+|-- 08_Model_Evaluation.ipynb
+|-- 09_Model_Serialization.ipynb
+|-- 10_FastAPI_Development.ipynb
+|-- 11_Documentation_and_CICD.ipynb
+|-- data/processed/grievance_processed.csv
+|-- models/final_models/
+|   |-- sentiment_model/
+|   |-- sentiment_metadata.json
+|   |-- department_model/
+|   `-- department_metadata.json
+|-- evaluation/
+|   |-- sentiment_metrics.json
+|   |-- sentiment_cm.png
+|   |-- department_metrics.json
+|   `-- department_cm.png
+|-- api/
+|   |-- app.py
+|   |-- test_api.py
+|   `-- requirements.txt
+|-- .github/
+|   |-- ARCHITECTURE_DECISIONS.md
+|   `-- ci_cd.yml
+|-- README.md
+|-- GIT_COMMITS.md
+`-- requirements.txt
+```
+
+## Troubleshooting
+
+```bash
+# Models not found -> run notebooks 08 and 09 first
+# Port in use -> python -m uvicorn api.app:app --port 8001
+# Out of memory -> export CUDA_VISIBLE_DEVICES="" (force CPU)
+# Import errors -> pip install --upgrade -r requirements.txt
+```
+
+---
+Version: 1.0.0 | Status: Production Ready | Last Updated: 2024-01-15

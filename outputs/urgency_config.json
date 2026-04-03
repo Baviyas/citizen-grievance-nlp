@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-03-31T03:03:38.153316",
+  "created_at": "2026-04-03T09:39:56.702768",
   "description": "Complaints urgency scoring and prioritization configuration",
   "version": "1.0",
   "weights": {
@@ -77,16 +77,16 @@
   },
   "formula": "urgency = (sentiment \u00d7 0.40) + (keywords \u00d7 0.25) + (confidence \u00d7 0.20) + (recency \u00d7 0.15)",
   "statistics": {
-    "total_complaints": 12387,
+    "total_complaints": 24774,
     "urgency_score_min": 18.0,
     "urgency_score_max": 24.25,
-    "urgency_score_mean": 20.0977637846129,
-    "urgency_score_median": 20.5,
+    "urgency_score_mean": 19.04888189230645,
+    "urgency_score_median": 18.0,
     "priority_distribution": {
       "P1": 0,
       "P2": 0,
       "P3": 0,
-      "P4": 12387
+      "P4": 24774
     }
   }
 }
