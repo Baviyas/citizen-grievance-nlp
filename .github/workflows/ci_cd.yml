@@ -49,7 +49,8 @@ jobs:
       run: docker build -t citizen-grievance-api:latest .
 
     - name: Run container tests
-      run: docker run --rm citizen-grievance-api:latest pytest api/test_api.py
+      run: docker run --rm citizen-grievance-api:latest pytest test_api.py
+
 
   deploy:
     runs-on: ubuntu-latest
