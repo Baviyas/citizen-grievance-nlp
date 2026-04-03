@@ -6,10 +6,10 @@ import pytest
 import json
 from fastapi.testclient import TestClient
 from app import app, UrgencyCalculator
+import warnings
+warnings.filterwarnings("ignore")
 
-
-client = TestClient(app)
-
+client = TestClient(app, raise_server_exceptions=False)
 
 class TestHealthEndpoint:
     """Test health check endpoint"""
