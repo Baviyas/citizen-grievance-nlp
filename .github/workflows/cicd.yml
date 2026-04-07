@@ -21,7 +21,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install -r api/requirements.txt
 
     - name: Lint with flake8
       run: |
@@ -32,7 +31,8 @@ jobs:
     - name: Test with pytest
       run: |
         cd api
-        python -m pytest test_api.py -v --cov=. --cov-report=xml
+        pytest test_api.py -v --cov --cov-report=xml
+        cd ..
 
     - name: Upload coverage
       uses: codecov/codecov-action@v3
@@ -49,8 +49,7 @@ jobs:
       run: docker build -t citizen-grievance-api:latest .
 
     - name: Run container tests
-      run: docker run --rm citizen-grievance-api:latest pytest test_api.py
-
+      run: docker run --rm citizen-grievance-api:latest pytest api/test_api.py
 
   deploy:
     runs-on: ubuntu-latest
