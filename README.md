@@ -1,148 +1,149 @@
-# AI-Driven Citizen Grievance Analysis System
+# AI-Driven Citizen Grievance & Sentiment Analysis System
 
-> Week 4 Deliverable: API Development, Evaluation, and Final Deployment
+An end-to-end NLP pipeline that ingests NYC 311 service requests, classifies complaints into municipal departments, scores sentiment, and prioritises tickets by urgency — served through a FastAPI backend and Streamlit frontend.
 
-## Overview
 
-Complete AI-driven system for analyzing citizen grievances and routing them to municipal departments with urgency scoring.
+## Table of Contents
 
-**Components:**
-- Sentiment Analysis: 4-class transformer (positive/neutral/negative/critical)
-- Department Classification: 6-class routing classifier
-- Urgency Scoring: Multi-factor priority calculation
-- FastAPI: Production-ready REST API
+- [Architecture](#architecture)
+- [Features](#features)
+- [Installation & Setup](#installation--setup)
+- [Configuration](#configuration)
+- [Priority System](#priority-system)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Deployment](#deployment)
+- [Contributors](#contributors)
+- [License](#license)
 
 ## Architecture
 
 ```
-Citizen Complaint Text (Input)
-          |
-    Preprocessing
-          |
-   +-----------+   +------------------+
-   | Sentiment |   |   Department     |
-   | Classifier|   |   Classifier     |
-   +-----------+   +------------------+
-          |               |
-     Urgency Calculator
-          |
-   Prediction Output
-   - Department
-   - Sentiment
-   - Priority
-   - Action
+┌──────────────────┐     ┌──────────────────┐     ┌───────────────────────┐
+│   Frontend       │     │   Backend API    │     │   ML Models           │
+│   (Streamlit)    │◄───►│   (FastAPI)      │◄───►│   Transformers        │
+│   localhost:8501 │     │   localhost:8000 │     │   + Scikit-learn      │
+└──────────────────┘     └──────────────────┘     └───────────────────────┘
+         │                        │                          │
+         ▼                        ▼                          ▼
+  Single / Batch          POST /predict             Sentiment Analysis
+  Grievance Input         POST /batch_predict       Department Routing
+  CSV Upload              GET  /health               Urgency Scoring
+                          GET  /metrics
 ```
 
-## Model Evaluation Results
+## Features
 
-| Model | Accuracy | F1-Score | Precision | Recall |
-|-------|----------|----------|-----------|--------|
-| Sentiment | 87.50% | 0.8642 | 87.58% | 87.50% |
-| Department | 83.33% | 0.8301 | 83.90% | 83.33% |
-
-## API Endpoints
-
-### POST /predict - Single Complaint Prediction
-
-Request:
-```json
-{"complaint_text": "Water pipe is broken near my house. URGENT!"}
-```
-
-Response:
-```json
-{
-  "predicted_department": "water_supply",
-  "department_confidence": 0.9542,
-  "sentiment": "critical",
-  "sentiment_confidence": 0.9123,
-  "urgency_score": 9.25,
-  "priority": "CRITICAL",
-  "recommended_action": "Dispatch emergency team immediately.",
-  "timestamp": "2024-01-15T10:30:45"
-}
-```
-
-### POST /batch_predict - Bulk Processing (up to 100 complaints)
-### GET /health - API and model health status
-### GET /metrics - Model performance metrics
-### GET /docs - Interactive Swagger UI
-### GET /redoc - ReDoc documentation
+- **Sentiment Analysis** — 4-class transformer model (positive / neutral / negative / critical) fine-tuned on `distilroberta-base`
+- **Department Routing** — TF-IDF + Logistic Regression / Random Forest with 5-fold stratified CV; 17+ complaint types consolidated into 4 super-departments
+- **Urgency Scoring** — multi-factor priority score combining sentiment, emergency keywords, model confidence, and recency
+- **FastAPI Backend** — production-ready REST API with full endpoint coverage
+- **Streamlit Frontend** — web interface for single and batch grievance submission with analytics dashboard
+- **Batch Processing** — bulk analysis via CSV upload through `/batch_predict`
 
 ## Installation & Setup
 
+### Prerequisites
+
+- Python 3.8+
+- pip
+- Git
+
+### Quick Start
+
 ```bash
-# 1. Install dependencies
+# 1. Clone the repository
+git clone https://github.com/Baviyas/citizen-grievance-nlp.git
+cd citizen-grievance-nlp
+
+# 2. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
-cd api && pip install -r requirements.txt && cd ..
 
-# 2. Run notebooks in order
-jupyter nbconvert --to notebook --execute 08_Model_Evaluation.ipynb
-jupyter nbconvert --to notebook --execute 09_Model_Serialization.ipynb
-jupyter nbconvert --to notebook --execute 10_FastAPI_Development.ipynb
+# 4. Train models (run notebooks 01- 10 in order, or execute headlessly)
 
-# 3. Start API server
+# 5. Start the backend API
 cd api && python app.py
+# → http://localhost:8000  |  Swagger UI: http://localhost:8000/docs
 
-# 4. Visit: http://localhost:8000/docs
+# 6. Start the frontend (new terminal)
+cd frontend && streamlit run app.py
+# → http://localhost:8501
 ```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+API_BASE_URL=http://localhost:8000
+USE_GPU=1          # 0 for CPU, 1 for GPU
+```
+
+### Streamlit Secrets
+
+Create `frontend/.streamlit/secrets.toml`:
+
+```toml
+API_BASE_URL = "http://localhost:8000"
+USE_GPU = 0
+```
+
+## Priority System
+
+| Priority | Score | SLA | Description |
+|----------|-------|-----|-------------|
+| P1 — Critical | 80 – 100 | 2 hours | Life-threatening / immediate danger |
+| P2 — High | 60 – 79 | 24 hours | Urgent infrastructure issues |
+| P3 — Medium | 40 – 59 | 3 days | Standard maintenance / repair |
+| P4 — Low | 0 – 39 | 7 days | Routine requests |
 
 ## Testing
 
 ```bash
-cd api
-pytest test_api.py -v
-# Expected: 22 passed, coverage 95%
-```
+# Run API test suite
+cd api && python -m pytest test_api.py -v
 
-## Priority Levels
+# Manual curl test
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"description": "Water pipe broken, flooding street"}'
 
-| Priority | Score | Response Time | Example |
-|----------|-------|---------------|----------|
-| CRITICAL | 8-10 | Immediate (30 min) | Fire, flood, trapped |
-| HIGH | 6-7.9 | 24 hours | Broken pipe, no power |
-| MEDIUM | 3-5.9 | 3 days | Minor damage, repair |
-| LOW | 0-2.9 | 7 days | Routine maintenance |
-
-## Project Structure
-
-```
-citizen-grievance-analysis/
-|-- 08_Model_Evaluation.ipynb
-|-- 09_Model_Serialization.ipynb
-|-- 10_FastAPI_Development.ipynb
-|-- 11_Documentation_and_CICD.ipynb
-|-- data/processed/grievance_processed.csv
-|-- models/final_models/
-|   |-- sentiment_model/
-|   |-- sentiment_metadata.json
-|   |-- department_model/
-|   `-- department_metadata.json
-|-- evaluation/
-|   |-- sentiment_metrics.json
-|   |-- sentiment_cm.png
-|   |-- department_metrics.json
-|   `-- department_cm.png
-|-- api/
-|   |-- app.py
-|   |-- test_api.py
-|   `-- requirements.txt
-|-- .github/
-|   |-- ARCHITECTURE_DECISIONS.md
-|   `-- ci_cd.yml
-|-- README.md
-|-- GIT_COMMITS.md
-`-- requirements.txt
+# Frontend smoke test
+cd frontend && streamlit run app.py
+# Visit http://localhost:8501
 ```
 
 ## Troubleshooting
 
+| Problem | Solution |
+|---------|----------|
+| Models not found | Run all notebooks in order first |
+| Port already in use | `python -m uvicorn api.app:app --port 8001` |
+| CUDA out of memory | `export CUDA_VISIBLE_DEVICES=""` to force CPU |
+| Import errors | `pip install --upgrade -r requirements.txt` |
+| Streamlit secrets error | Create `frontend/.streamlit/secrets.toml` with `API_BASE_URL` |
+
+## Deployment
+
+### Docker
+
 ```bash
-# Models not found -> run notebooks 08 and 09 first
-# Port in use -> python -m uvicorn api.app:app --port 8001
-# Out of memory -> export CUDA_VISIBLE_DEVICES="" (force CPU)
-# Import errors -> pip install --upgrade -r requirements.txt
+docker build -t grievance-api .
+docker run -p 8000:8000 grievance-api
 ```
 
----
-Version: 1.0.0 | Status: Production Ready | Last Updated: 2024-01-15
+## Contributors
+
+| Name | GitHub |
+|------|--------|
+| Vasi Khan | [@vasi2904k](https://github.com/vasi2904k) |
+| Bhumi Shah | [@code-with-bhumi](https://github.com/code-with-bhumi) |
+| Baviya | [@Baviyas](https://github.com/Baviyas) |
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
