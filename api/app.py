@@ -551,7 +551,6 @@ async def root():
         "name": "Citizen Grievance Analysis API",
         "version": "1.0.0",
         "documentation": "/docs",
-        "health_check": "/health",
         "endpoints": {
             "predict": "POST /predict",
             "batch_predict": "POST /batch_predict",
