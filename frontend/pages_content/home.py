@@ -56,6 +56,8 @@ def show():
         immediate analysis including department routing,
         sentiment analysis, and priority assessment.
         """)
+        if st.button("Submit Grievance →", key="btn_submit"):
+            st.session_state.page = "submit"
     
     with col2:
         st.markdown("""
@@ -65,6 +67,8 @@ def show():
         a CSV file. Ideal for bulk migrations or
         historical data analysis.
         """)
+        if st.button("Upload File →", key="btn_batch"):
+            st.session_state.page = "batch"
     
     with col3:
         st.markdown("""
@@ -74,6 +78,8 @@ def show():
         and insights about filed grievances across
         departments and priority levels.
         """)
+        if st.button("View Analytics →", key="btn_analytics"):
+            st.session_state.page = "analytics"
     
     st.markdown("---")
     

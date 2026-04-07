@@ -40,7 +40,7 @@ def show():
         st.metric("Priority Levels", len(stats.get("priority_tiers", [])))
     
     with col3:
-        st.metric("Sentiment Types", len(stats.get("sentiment_types", [])))
+        st.metric("Sentiment Types", len(stats.get("sentiment_scores", [])))
     
     with col4:
         st.metric("API Status", "🟢 Online" if api_client.health_check() else "🔴 Offline")
@@ -185,3 +185,32 @@ def show():
     
     except Exception as e:
         st.warning(f"Could not load sample data: {str(e)}")
+    
+    st.markdown("---")
+    
+    # Tips
+    st.subheader("💡 Tips")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        **Best Practices:**
+        
+        ✓ Be specific and detailed
+        ✓ Include location information
+        ✓ Use clear language
+        ✓ Provide contact details
+        ✓ Include relevant dates
+        """)
+    
+    with col2:
+        st.markdown("""
+        **Using the System:**
+        
+        1. Submit grievance or upload batch
+        2. System analyzes automatically
+        3. Get department routing
+        4. Receive priority assignment
+        5. Track progress via ID
+        """)

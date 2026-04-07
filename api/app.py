@@ -105,16 +105,16 @@ class MetricsResponse(BaseModel):
 class ModelManager:
     """Load and manage models"""
     
-    def __init__(self, models_dir: str = '../models/final_models'):
+    def __init__(self, models_dir: str = './models/final_models'):
         self.models_dir = Path(models_dir)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         # Load sentiment model
         try:
             sentiment_path = self.models_dir / 'sentiment_model'
-            self.sentiment_tokenizer = AutoTokenizer.from_pretrained(str(sentiment_path), local_files_only=True)
+            self.sentiment_tokenizer = AutoTokenizer.from_pretrained(str(sentiment_path))
             self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
-                str(sentiment_path), local_files_only=True
+                str(sentiment_path)
             ).to(self.device)
             self.sentiment_model.eval()
             logger.info("✅ Sentiment model loaded")
@@ -126,9 +126,9 @@ class ModelManager:
         # Load department model
         try:
             department_path = self.models_dir / 'department_model'
-            self.department_tokenizer = AutoTokenizer.from_pretrained(str(department_path), local_files_only=True)
+            self.department_tokenizer = AutoTokenizer.from_pretrained(str(department_path))
             self.department_model = AutoModelForSequenceClassification.from_pretrained(
-                str(department_path), local_files_only=True
+                str(department_path)
             ).to(self.device)
             self.department_model.eval()
             logger.info("✅ Department model loaded")
@@ -515,34 +515,6 @@ async def predict_batch(request: BatchPredictionRequest):
         logger.error(f"Batch prediction error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/stats", tags=["Metrics"])
-async def get_stats():
-
-    return {
-        "departments": [
-            "Environment",
-            "Non-Complaint",
-            "Social & Health Services",
-            "Transport"
-        ],
-        "priority_tiers": [
-            "P1",
-            "P2",
-            "P3",
-            "P4"
-        ],
-        "sentiment_types": [
-            "critical",
-            "negative",
-            "neutral",
-            "positive"
-        ],
-        "models": {
-            "routing_model": "Logistic Regression",
-            "sentiment_model": "DistilBERT"
-        },
-        "timestamp": "2026-04-07T12:00:00.000000"
-        }
 
 @app.get("/", tags=["Root"])
 async def root():
@@ -556,8 +528,7 @@ async def root():
             "predict": "POST /predict",
             "batch_predict": "POST /batch_predict",
             "metrics": "GET /metrics",
-            "health": "GET /health",
-            "stats": "GET /stats"
+            "health": "GET /health"
         }
     }
 
