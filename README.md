@@ -62,6 +62,8 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
+pip install -r api/requirements.txt
+pip install -r frontend/requirements-frontend.txt
 
 # 4. Train models (run notebooks 01- 10 in order, or execute headlessly)
 
