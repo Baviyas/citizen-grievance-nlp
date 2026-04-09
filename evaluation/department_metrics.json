@@ -1,0 +1,78 @@
+{
+  "accuracy": 0.09041372351160444,
+  "f1_score": 0.014993650983971417,
+  "precision": 0.008174641399232853,
+  "recall": 0.09041372351160444,
+  "mean_confidence": 0.28316723732005217,
+  "classes_evaluated": [
+    "environment",
+    "non_compliant",
+    "social_health_services",
+    "transport"
+  ],
+  "confusion_matrix": [
+    [
+      0,
+      0,
+      671,
+      0
+    ],
+    [
+      0,
+      0,
+      1511,
+      0
+    ],
+    [
+      0,
+      0,
+      448,
+      0
+    ],
+    [
+      0,
+      0,
+      2325,
+      0
+    ]
+  ],
+  "classification_report": {
+    "environment": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 671.0
+    },
+    "non_compliant": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1511.0
+    },
+    "social_health_services": {
+      "precision": 0.09041372351160444,
+      "recall": 1.0,
+      "f1-score": 0.16583379603923745,
+      "support": 448.0
+    },
+    "transport": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2325.0
+    },
+    "accuracy": 0.09041372351160444,
+    "macro avg": {
+      "precision": 0.02260343087790111,
+      "recall": 0.25,
+      "f1-score": 0.04145844900980936,
+      "support": 4955.0
+    },
+    "weighted avg": {
+      "precision": 0.008174641399232853,
+      "recall": 0.09041372351160444,
+      "f1-score": 0.014993650983971417,
+      "support": 4955.0
+    }
+  }
+}
