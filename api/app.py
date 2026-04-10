@@ -1,14 +1,15 @@
 """
 ╔════════════════════════════════════════════════════════════════════════════╗
 ║                                                                            ║
-║  FastAPI Application - Citizen Grievance Analysis                         ║
+║  FastAPI Application - Citizen Grievance Analysis                          ║
 ║                                                                            ║
-║  Endpoints:                                                               ║
-║    POST /predict - Single complaint prediction                            ║
-║    POST /batch_predict - Batch prediction                                 ║
-║    GET /health - Health check                                             ║
-║    GET /metrics - Model metrics                                           ║
-║    GET /docs - API documentation (Swagger UI)                            ║
+║  Endpoints:                                                                ║
+║    POST /predict - Single complaint prediction                             ║
+║    POST /batch_predict - Batch prediction                                  ║
+║    GET /health - Health check                                              ║
+║    GET /metrics - Model metrics                                            ║
+║    GET /stats - Get Statistics                                             ║
+║    GET /docs - API documentation (Swagger UI)                              ║
 ║                                                                            ║
 ╚════════════════════════════════════════════════════════════════════════════╝
 """
@@ -47,7 +48,7 @@ class ComplaintRequest(BaseModel):
     complaint_text: str = Field(
         ...,
         description="Raw text of citizen complaint",
-        example="Water pipe is broken near my house, no water for 3 days. URGENT!"
+        example="Commercial vehicles are frequently double-parked, blocking the main traffic flow..."
     )
 
 
@@ -192,12 +193,10 @@ class ModelManager:
             confidence = torch.softmax(logits, dim=1).max().item()
         
         department_map = {
-            0: 'water_supply',
-            1: 'sanitation',
-            2: 'electricity',
-            3: 'roads',
-            4: 'healthcare',
-            5: 'public_safety'
+            0: 'environment',
+            1: 'non_compliant',
+            2: 'social_health_services',
+            3: 'transport' 
         }
         return department_map[pred_class], confidence
 
@@ -269,41 +268,29 @@ class UrgencyCalculator:
     def get_recommended_action(department: str, priority: str) -> str:
         """Get recommended action based on department and priority"""
         actions = {
-            'water_supply': {
-                'CRITICAL': 'Dispatch emergency team immediately. Restore water supply within 2 hours.',
-                'HIGH': 'Schedule repair within 24 hours. Provide alternative water supply.',
-                'MEDIUM': 'Create maintenance ticket. Contact resident for survey.',
-                'LOW': 'Add to routine maintenance queue. Contact within 7 days.'
+            'environment': {
+                'CRITICAL': 'Emergency environmental response triggered. Dispatch specialized team immediately.',
+                'HIGH': 'Prioritize repair or cleanup. Restore service/safety within 24 hours.',
+                'MEDIUM': 'Issue maintenance ticket and notify affected residents within 48 hours.',
+                'LOW': 'Log for routine inspection and add to the standard maintenance queue.'
             },
-            'sanitation': {
-                'CRITICAL': 'Dispatch hazmat team immediately. Block affected area.',
-                'HIGH': 'Schedule urgent cleanup within 24 hours.',
-                'MEDIUM': 'Create service ticket. Schedule within 48 hours.',
-                'LOW': 'Add to maintenance queue.'
+            'non_compliant': {
+                'CRITICAL': 'Immediate breach detected. Halt related operations and escalate to legal/oversight.',
+                'HIGH': 'Initiate formal compliance audit and notify department head within 12 hours.',
+                'MEDIUM': 'Issue non-compliance notice. Request rectification plan within 48 hours.',
+                'LOW': 'Record incident for periodic review and future compliance tracking.'
             },
-            'electricity': {
-                'CRITICAL': 'Declare emergency. Dispatch team immediately. Safety protocols active.',
-                'HIGH': 'Dispatch electrician within 24 hours. Issue power alternatives.',
-                'MEDIUM': 'Schedule inspection within 48 hours.',
-                'LOW': 'Add to maintenance queue.'
+            'social_health_services': {
+                'CRITICAL': 'Activate emergency welfare and health protocols. Immediate intervention required.',
+                'HIGH': 'Dispatch community or medical support units within 2-4 hours.',
+                'MEDIUM': 'Schedule consultation or follow-up visit within 48 hours.',
+                'LOW': 'Process application or request within standard 7-day window.'
             },
-            'roads': {
-                'CRITICAL': 'Close affected area. Deploy traffic management.',
-                'HIGH': 'Schedule repair within 3 days.',
-                'MEDIUM': 'Create work order. Schedule within 7 days.',
-                'LOW': 'Add to routine maintenance.'
-            },
-            'healthcare': {
-                'CRITICAL': 'Activate emergency health response protocol.',
-                'HIGH': 'Dispatch medical team within 2 hours.',
-                'MEDIUM': 'Schedule clinic visit within 48 hours.',
-                'LOW': 'Schedule regular appointment.'
-            },
-            'public_safety': {
-                'CRITICAL': 'Alert law enforcement immediately.',
-                'HIGH': 'Deploy patrol units within 1 hour.',
-                'MEDIUM': 'File formal report. Investigate within 48 hours.',
-                'LOW': 'Add to investigation queue.'
+            'transport': {
+                'CRITICAL': 'Safety hazard detected. Close affected area and deploy traffic management.',
+                'HIGH': 'Dispatch infrastructure repair crew. Aim for resolution within 24-72 hours.',
+                'MEDIUM': 'Generate work order and schedule site inspection within 3-5 days.',
+                'LOW': 'Add to long-term infrastructure improvement and monitoring plan.'
             }
         }
         
@@ -401,7 +388,7 @@ async def predict_single(request: ComplaintRequest):
     
     Example request:
     {
-        "complaint_text": "Water pipe is broken near my house, no water for 3 days. URGENT!"
+        "complaint_text": "Commercial vehicles are frequently double-parked, blocking the main traffic flow..."
     }
     """
     global total_predictions
@@ -455,7 +442,7 @@ async def predict_batch(request: BatchPredictionRequest):
     Example request:
     {
         "complaints": [
-            "Water pipe is broken",
+            "Commercial vehicles are frequently double-parked, blocking the main traffic flow...",
             "Road has huge pothole",
             "Electricity is cut off"
         ]
@@ -541,7 +528,7 @@ async def get_stats():
             "routing_model": "Logistic Regression",
             "sentiment_model": "DistilBERT"
         },
-        "timestamp": "2026-04-07T12:00:00.000000"
+        "timestamp": datetime.now().isoformat()
         }
 
 @app.get("/", tags=["Root"])
