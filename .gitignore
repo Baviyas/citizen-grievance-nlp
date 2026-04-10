@@ -26,9 +26,6 @@ models/label_encoder.joblib
 *.pth
 *.bin
 
-# Large data files
-data/raw/
-
 # Logs and OS files
 *.log
 logs/
