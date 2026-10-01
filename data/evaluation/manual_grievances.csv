@@ -1,0 +1,17 @@
+grievance_text,expected_department
+"Cars are blocking the entrance to my driveway and residents cannot leave.",Transport
+"A large pothole is causing vehicles to swerve into traffic.",Transport
+"A vehicle has been abandoned on our street for several weeks.",Transport
+"The traffic signal is broken and is creating a dangerous intersection.",Transport
+"There is loud music from a commercial property every night.",Environment
+"Someone dumped rubbish and the area has a strong foul smell.",Environment
+"Graffiti has been painted on the wall beside the public walkway.",Environment
+"Smoke and pollution from the factory are affecting nearby homes.",Environment
+"A stray dog is injured and needs help from animal services.",Social & Health Services
+"A person is sleeping outside in freezing weather and needs outreach support.",Social & Health Services
+"People are drinking alcohol and causing a disturbance in the park.",Social & Health Services
+"A person is urinating in public near the playground.",Social & Health Services
+"I want information about the status of a city service request.",Non-Complaint
+"Please provide general information about available public services.",Non-Complaint
+"The community area is clean and there are no issues to report.",Non-Complaint
+"I am submitting feedback about a service that worked well.",Non-Complaint

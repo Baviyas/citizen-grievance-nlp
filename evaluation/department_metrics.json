@@ -1,78 +1,61 @@
 {
-  "accuracy": 0.09041372351160444,
-  "f1_score": 0.014993650983971417,
-  "precision": 0.008174641399232853,
-  "recall": 0.09041372351160444,
-  "mean_confidence": 0.28316723732005217,
-  "classes_evaluated": [
-    "environment",
-    "non_compliant",
-    "social_health_services",
-    "transport"
+  "model": "TF-IDF + Logistic Regression",
+  "feature_columns": [
+    "Descriptor",
+    "Location Type",
+    "Borough"
   ],
-  "confusion_matrix": [
-    [
-      0,
-      0,
-      671,
-      0
-    ],
-    [
-      0,
-      0,
-      1511,
-      0
-    ],
-    [
-      0,
-      0,
-      448,
-      0
-    ],
-    [
-      0,
-      0,
-      2325,
-      0
-    ]
+  "split": "GroupShuffleSplit by Unique Key",
+  "random_state": 42,
+  "train_rows": 53397,
+  "test_rows": 4956,
+  "manual_training_rows": 33,
+  "real_training_rows": 33546,
+  "accuracy": 0.9989911218724778,
+  "macro_f1": 0.9934717745527728,
+  "classes": [
+    "Environment",
+    "Non-Complaint",
+    "Social & Health Services",
+    "Transport"
   ],
   "classification_report": {
-    "environment": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 671.0
-    },
-    "non_compliant": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 1511.0
-    },
-    "social_health_services": {
-      "precision": 0.09041372351160444,
+    "Environment": {
+      "precision": 1.0,
       "recall": 1.0,
-      "f1-score": 0.16583379603923745,
-      "support": 448.0
+      "f1-score": 1.0,
+      "support": 690.0
     },
-    "transport": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 2325.0
+    "Non-Complaint": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2478.0
     },
-    "accuracy": 0.09041372351160444,
+    "Social & Health Services": {
+      "precision": 0.9519230769230769,
+      "recall": 1.0,
+      "f1-score": 0.9753694581280787,
+      "support": 99.0
+    },
+    "Transport": {
+      "precision": 1.0,
+      "recall": 0.9970396684428656,
+      "f1-score": 0.9985176400830122,
+      "support": 1689.0
+    },
+    "accuracy": 0.9989911218724778,
     "macro avg": {
-      "precision": 0.02260343087790111,
-      "recall": 0.25,
-      "f1-score": 0.04145844900980936,
-      "support": 4955.0
+      "precision": 0.9879807692307692,
+      "recall": 0.9992599171107164,
+      "f1-score": 0.9934717745527728,
+      "support": 4956.0
     },
     "weighted avg": {
-      "precision": 0.008174641399232853,
-      "recall": 0.09041372351160444,
-      "f1-score": 0.014993650983971417,
-      "support": 4955.0
+      "precision": 0.9990396256286087,
+      "recall": 0.9989911218724778,
+      "f1-score": 0.9990027987197111,
+      "support": 4956.0
     }
   }
 }

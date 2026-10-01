@@ -1,0 +1,38 @@
+grievance_text,expected_department
+"Graffiti covers the wall of the subway entrance.",Environment
+"Someone spray-painted graffiti on the public library.",Environment
+"There is graffiti on the bus stop shelter.",Environment
+"Paint and tags have damaged the playground wall.",Environment
+"A factory is releasing dark smoke near homes.",Environment
+"Strong chemical pollution is coming from the industrial site.",Environment
+"The air smells like fuel and residents are coughing.",Environment
+"Smoke from burning waste is filling the neighborhood.",Environment
+"Garbage has been dumped beside the road and is attracting rats.",Environment
+"Rubbish has overflowed from the public bins.",Environment
+"There is a large pile of trash near the apartment entrance.",Environment
+"The street is dirty and needs an environmental cleanup.",Environment
+"Loud construction noise continues late at night.",Environment
+"A restaurant is creating excessive noise for nearby residents.",Environment
+"A dead animal is lying on the roadside and needs removal.",Social & Health Services
+"An injured cat is trapped near the road and needs animal assistance.",Social & Health Services
+"A homeless person needs emergency outreach and shelter support.",Social & Health Services
+"People are sleeping under the bridge and need social services.",Social & Health Services
+"A group is drinking alcohol and fighting in the park.",Social & Health Services
+"Someone is panhandling aggressively outside the station.",Social & Health Services
+"A child is in danger and needs immediate welfare assistance.",Social & Health Services
+"The sidewalk is blocked by an abandoned vehicle.",Transport
+"A broken traffic light is causing accidents.",Transport
+"A bus stop sign has fallen into the road.",Transport
+"Cars are parked illegally across the pedestrian crossing.",Transport
+"A delivery truck is blocking traffic on the main street.",Transport
+"The road surface has a dangerous pothole.",Transport
+"I need information about renewing a city service.",Non-Complaint
+"Please explain how the public parking permit process works.",Non-Complaint
+"I am asking for an update about a previously submitted request.",Non-Complaint
+"The public facility is operating normally with no complaint.",Non-Complaint
+"I want to share positive feedback about the city service.",Non-Complaint
+"Please provide general information about community programs.",Non-Complaint
+"Please tell me the opening hours for the community center.",Non-Complaint
+"I would like information about available recycling programs.",Non-Complaint
+"Can you explain how to contact the city department responsible for permits?",Non-Complaint
+"The public park is clean and operating normally today.",Non-Complaint

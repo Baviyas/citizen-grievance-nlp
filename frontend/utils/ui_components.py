@@ -42,6 +42,10 @@ def render_grievance_card(grievance: Dict[str, Any]) -> None:
                 "P4": "🟢"
             }
             st.metric("Priority", f"{priority_colors.get(priority, '')} {priority}")
+
+        st.caption(
+            f"Sentiment confidence: {grievance.get('sentiment_confidence', 0.0):.2f}%"
+        )
         
         # Urgency and SLA
         col1, col2 = st.columns(2)

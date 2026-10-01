@@ -222,3 +222,26 @@ When the API is running, visit:
 **Swagger UI:** http://localhost:8000/docs
 
 These provide interactive endpoints for testing the API directly from your browser.
+
+## Department model variants
+
+The API uses the real-data five-class routing model by default:
+
+```text
+Environment
+Transport
+Social & Health Services
+Water
+Non-Complaint
+```
+
+To explicitly test the legacy four-class artifact, set:
+
+```powershell
+$env:DEPARTMENT_MODEL_VARIANT = "legacy_4class"
+python api/app.py
+```
+
+The `Non-Complaint` class uses curated neutral/service-information examples,
+because ordinary NYC 311 records are complaints. The model metadata reports
+this data limitation explicitly.

@@ -53,7 +53,14 @@ def show():
         with col2_opt:
             category = st.selectbox(
                 "Preferred Category (Optional)",
-                options=["", "Environment", "Transport", "Social & Health Services", "Other"],
+                options=[
+                    "",
+                    "Environment",
+                    "Transport",
+                    "Water",
+                    "Social & Health Services",
+                    "Other",
+                ],
                 help="If you know which department, select it"
             )
             

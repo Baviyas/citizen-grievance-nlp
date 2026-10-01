@@ -65,7 +65,35 @@ pip install -r requirements.txt
 pip install -r api/requirements.txt
 pip install -r frontend/requirements-frontend.txt
 
-# 4. Train models (run notebooks 01- 10 in order, or execute headlessly)
+# 4. Train models (the routing model excludes target/post-resolution leakage)
+python scripts/train_department_model.py
+# Run the sentiment notebooks separately when sentiment data is available.
+
+# Evaluate on manually authored grievances kept outside training data
+python scripts/evaluate_manual_grievances.py
+
+# Prepare real NYC 311 records for human review. Taxonomy suggestions are not
+# ground truth; see docs/REAL_DATA_REVIEW.md.
+python scripts/prepare_real_nyc311_labels.py
+python scripts/validate_reviewed_labels.py
+python scripts/train_department_model.py
+python scripts/evaluate_real_nyc311.py
+
+# Train a separate provisional three-class model on real 311 records.
+# This does not replace the four-class API model.
+python scripts/assistant_review_real_nyc311.py
+python scripts/train_real_3class_model.py
+
+# The API uses the real-data five-class routing model by default.
+python api/app.py
+
+# Retrain the real-data model after regenerating assistant-reviewed labels:
+python scripts/assistant_review_real_nyc311.py
+python scripts/train_real_5class_model.py
+
+# Explicitly use the legacy four-class artifact only for comparison:
+$env:DEPARTMENT_MODEL_VARIANT = "legacy_4class"
+python api/app.py
 
 # 5. Start the backend API
 cd api && python app.py

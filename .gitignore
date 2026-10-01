@@ -14,11 +14,21 @@ ENV/
 notebooks/.ipynb_checkpoints/
 outputs/.ipynb_checkpoints/
 
+# Downloaded/local evaluation data and generated reports
+data/raw/nyc311_real_*.csv
+data/evaluation/nyc311_real_*.csv
+evaluation/*_predictions.csv
+evaluation/*_metrics.json
+outputs/
+
 # Large model files (too big for GitHub)
 models/sentiment_model/
 models/final_models/
 models/best_model_pipeline.joblib
 models/label_encoder.joblib
+models/real_3class/
+evaluation/real_3class_*.csv
+evaluation/real_3class_*.json
 
 # Model weights and binaries
 *.safetensors

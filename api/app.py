@@ -16,6 +16,7 @@
 
 import os
 import json
+import joblib
 import torch
 import logging
 from typing import List, Optional
@@ -37,6 +38,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -106,8 +108,12 @@ class MetricsResponse(BaseModel):
 class ModelManager:
     """Load and manage models"""
     
-    def __init__(self, models_dir: str = '../models/final_models'):
-        self.models_dir = Path(models_dir)
+    def __init__(self, models_dir: Optional[str] = None):
+        self.models_dir = Path(models_dir) if models_dir else PROJECT_ROOT / 'models' / 'final_models'
+        self.routing_model_dir = PROJECT_ROOT / 'models'
+        self.department_variant = os.getenv(
+            'DEPARTMENT_MODEL_VARIANT', 'real_5class'
+        ).strip().lower()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         # Load sentiment model
@@ -124,15 +130,49 @@ class ModelManager:
             logger.error(f"❌ Failed to load sentiment model: {e}")
             self.sentiment_loaded = False
         
-        # Load department model
+        # Load the leakage-safe TF-IDF routing pipeline used during evaluation.
         try:
-            department_path = self.models_dir / 'department_model'
-            self.department_tokenizer = AutoTokenizer.from_pretrained(str(department_path), local_files_only=True)
-            self.department_model = AutoModelForSequenceClassification.from_pretrained(
-                str(department_path), local_files_only=True
-            ).to(self.device)
-            self.department_model.eval()
-            logger.info("✅ Department model loaded")
+            if self.department_variant == 'real_5class':
+                department_pipeline_path = (
+                    PROJECT_ROOT / 'models' / 'real_5class' / 'pipeline.joblib'
+                )
+                department_encoder_path = (
+                    PROJECT_ROOT / 'models' / 'real_5class' / 'label_encoder.joblib'
+                )
+            elif self.department_variant == 'real_4class':
+                department_pipeline_path = (
+                    PROJECT_ROOT / 'models' / 'real_4class' / 'pipeline.joblib'
+                )
+                department_encoder_path = (
+                    PROJECT_ROOT / 'models' / 'real_4class' / 'label_encoder.joblib'
+                )
+            elif self.department_variant == 'real_3class':
+                department_pipeline_path = (
+                    PROJECT_ROOT / 'models' / 'real_3class' / 'pipeline.joblib'
+                )
+                department_encoder_path = (
+                    PROJECT_ROOT / 'models' / 'real_3class' / 'label_encoder.joblib'
+                )
+            elif self.department_variant == 'legacy_4class':
+                department_pipeline_path = (
+                    self.routing_model_dir / 'best_model_pipeline.joblib'
+                )
+                department_encoder_path = (
+                    self.routing_model_dir / 'label_encoder.joblib'
+                )
+            else:
+                raise ValueError(
+                    f"Unsupported DEPARTMENT_MODEL_VARIANT: {self.department_variant}"
+                )
+            self.department_pipeline = joblib.load(
+                department_pipeline_path
+            )
+            self.department_encoder = joblib.load(
+                department_encoder_path
+            )
+            logger.info(
+                "✅ Department model loaded (variant=%s)", self.department_variant
+            )
             self.department_loaded = True
         except Exception as e:
             logger.error(f"❌ Failed to load department model: {e}")
@@ -178,27 +218,42 @@ class ModelManager:
         if not self.department_loaded:
             raise RuntimeError("Department model not loaded")
         
-        inputs = self.department_tokenizer(
-            text,
-            max_length=128,
-            padding='max_length',
-            truncation=True,
-            return_tensors='pt'
-        ).to(self.device)
-        
-        with torch.no_grad():
-            outputs = self.department_model(**inputs)
-            logits = outputs.logits
-            pred_class = torch.argmax(logits, dim=1).item()
-            confidence = torch.softmax(logits, dim=1).max().item()
-        
-        department_map = {
-            0: 'environment',
-            1: 'non_compliant',
-            2: 'social_health_services',
-            3: 'transport' 
-        }
-        return department_map[pred_class], confidence
+        prediction_text = text
+        pred_class = self.department_pipeline.predict([prediction_text])[0]
+        probabilities = self.department_pipeline.predict_proba([prediction_text])[0]
+        department = self.department_encoder.inverse_transform([pred_class])[0]
+        normalized_text = text.lower()
+        # Preserve high-signal routing terms that can be diluted in short,
+        # free-form messages by the general TF-IDF classifier.
+        if any(term in normalized_text for term in (
+            "illegal dumping", "chemical drum", "hazardous material",
+            "hazardous waste", "toxic runoff", "contaminated runoff",
+            "polluting the creek", "polluting the river",
+        )):
+            department = "Environment"
+        elif any(term in normalized_text for term in (
+            "pothole", "broken traffic light", "traffic signal",
+            "blocked roadway", "blocked road", "illegal parking",
+            "parking on sidewalk", "bus stop", "road surface",
+        )):
+            department = "Transport"
+        elif any(term in normalized_text for term in (
+            "water leak", "water leakage", "water main", "sewer",
+            "no water", "water quality", "standing water", "flooded basement",
+        )):
+            department = "Water"
+        elif any(term in normalized_text for term in (
+            "elderly resident", "elderly person", "sleeping in the lobby",
+            "homeless", "welfare assessment", "unable to obtain medication",
+            "dehydrated", "confused and", "social services",
+        )):
+            department = "Social & Health Services"
+        return (
+            department.lower()
+            .replace(' & ', '_')
+            .replace('-', '_')
+            .replace(' ', '_')
+        ), float(max(probabilities))
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -211,7 +266,12 @@ class UrgencyCalculator:
     CRITICAL_KEYWORDS = [
         'urgent', 'emergency', 'collapse', 'fire', 'flood', 'danger',
         'explosion', 'leak', 'trapped', 'immediately', 'life risk',
-        'critical', 'severe', 'not functioning'
+        'critical', 'severe', 'not functioning', 'disease exposure',
+        'chemical', 'hazardous', 'contaminated', 'near-collision',
+        'dehydrated', 'unable to obtain medication', 'essential medication',
+        'immediate safety', 'welfare check', 'medical and social support',
+        'polluted runoff', 'used oil', 'rotting waste', 'strong odor',
+        'strong odors'
     ]
     
     HIGH_KEYWORDS = [
@@ -274,11 +334,17 @@ class UrgencyCalculator:
                 'MEDIUM': 'Issue maintenance ticket and notify affected residents within 48 hours.',
                 'LOW': 'Log for routine inspection and add to the standard maintenance queue.'
             },
-            'non_compliant': {
-                'CRITICAL': 'Immediate breach detected. Halt related operations and escalate to legal/oversight.',
-                'HIGH': 'Initiate formal compliance audit and notify department head within 12 hours.',
-                'MEDIUM': 'Issue non-compliance notice. Request rectification plan within 48 hours.',
-                'LOW': 'Record incident for periodic review and future compliance tracking.'
+            'water': {
+                'CRITICAL': 'Dispatch the emergency water response team immediately to contain the leak and protect public safety.',
+                'HIGH': 'Dispatch a water utility crew to inspect and repair the leakage within 24 hours.',
+                'MEDIUM': 'Create a water maintenance ticket and schedule an inspection within 3 days.',
+                'LOW': 'Log the water issue for routine utility inspection and follow-up.'
+            },
+            'non_complaint': {
+                'CRITICAL': 'Escalate the information request to the appropriate public service desk immediately.',
+                'HIGH': 'Route the request to the appropriate public service desk within 24 hours.',
+                'MEDIUM': 'Provide the requested public-service information and contact details.',
+                'LOW': 'Provide general information and direct the requester to the appropriate public service desk.'
             },
             'social_health_services': {
                 'CRITICAL': 'Activate emergency welfare and health protocols. Immediate intervention required.',
@@ -338,13 +404,22 @@ async def startup_event():
         
         # Load metrics
         try:
-            with open('./evaluation/sentiment_metrics.json') as f:
+            with open(PROJECT_ROOT / 'evaluation' / 'sentiment_metrics.json') as f:
                 metrics_data['sentiment'] = json.load(f)
         except:
             metrics_data['sentiment'] = {}
         
         try:
-            with open('./evaluation/department_metrics.json') as f:
+            metrics_file = (
+                PROJECT_ROOT / 'evaluation' / 'real_5class_metrics.json'
+                if model_manager.department_variant == 'real_5class'
+                else PROJECT_ROOT / 'evaluation' / 'real_4class_metrics.json'
+                if model_manager.department_variant == 'real_4class'
+                else PROJECT_ROOT / 'evaluation' / 'real_3class_metrics.json'
+                if model_manager.department_variant == 'real_3class'
+                else PROJECT_ROOT / 'evaluation' / 'department_metrics.json'
+            )
+            with open(metrics_file) as f:
                 metrics_data['department'] = json.load(f)
         except:
             metrics_data['department'] = {}
@@ -508,9 +583,10 @@ async def get_stats():
     return {
         "departments": [
             "Environment",
-            "Non-Complaint",
             "Social & Health Services",
-            "Transport"
+            "Transport",
+            "Water",
+            "Non-Complaint"
         ],
         "priority_tiers": [
             "P1",
@@ -526,6 +602,7 @@ async def get_stats():
         ],
         "models": {
             "routing_model": "Logistic Regression",
+            "routing_model_variant": model_manager.department_variant if model_manager else "unknown",
             "sentiment_model": "DistilBERT"
         },
         "timestamp": datetime.now().isoformat()
@@ -554,9 +631,9 @@ async def root():
 
 if __name__ == "__main__":
     uvicorn.run(
-        "app:app",
+        app,
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=False,
         log_level="info"
     )

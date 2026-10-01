@@ -65,7 +65,12 @@ def _map_predict_to_grievance(response: Dict[str, Any], description: str) -> Dic
         "predicted_department": response.get("predicted_department"),
         "confidence": round(float(response.get("department_confidence", response.get("confidence", 0.0))), 4),
         "sentiment": response.get("sentiment", "unknown"),
-        "sentiment_score": round(sentiment_confidence * 100 if sentiment_confidence <= 1 else sentiment_confidence, 2),
+        "sentiment_confidence": round(
+            sentiment_confidence * 100
+            if sentiment_confidence <= 1
+            else sentiment_confidence,
+            2,
+        ),
         "urgency_score": round(urgency_score, 2),
         "priority_tier": priority_tier,
         "sla": sla_map.get(priority_tier, "7 days"),
