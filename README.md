@@ -34,9 +34,9 @@ An end-to-end NLP pipeline that ingests NYC 311 service requests, classifies com
 
 ## Features
 
-- **Sentiment Analysis** — 4-class transformer model (positive / neutral / negative / critical) fine-tuned on `distilroberta-base`
-- **Department Routing** — TF-IDF + Logistic Regression / Random Forest with 5-fold stratified CV; 17+ complaint types consolidated into 4 super-departments
-- **Urgency Scoring** — multi-factor priority score combining sentiment, emergency keywords, model confidence, and recency
+- **Sentiment Analysis** — 4-class transformer model (positive / neutral / negative / critical) fine-tuned on legacy and India-oriented grievance examples
+- **Department Routing** — India-oriented routing for water, roads, electricity, health, environment, police, welfare, education, municipal, revenue, agriculture, food distribution, and non-complaints
+- **Urgency Scoring** — escalation rules for life safety, electrical hazards, violence, medical emergencies, pollution exposure, vulnerable residents, and essential-service outages
 - **FastAPI Backend** — production-ready REST API with full endpoint coverage
 - **Streamlit Frontend** — web interface for single and batch grievance submission with analytics dashboard
 - **Batch Processing** — bulk analysis via CSV upload through `/batch_predict`
@@ -84,16 +84,31 @@ python scripts/evaluate_real_nyc311.py
 python scripts/assistant_review_real_nyc311.py
 python scripts/train_real_3class_model.py
 
-# The API uses the real-data five-class routing model by default.
+# The API uses the India-oriented department model and India-finetuned sentiment
+# model by default.
 python api/app.py
+
+# Train India-oriented department routing.
+python scripts/train_india_department_model.py
+
+# Fine-tune sentiment and evaluate all four sentiment classes.
+python scripts/finetune_sentiment_model.py
 
 # Retrain the real-data model after regenerating assistant-reviewed labels:
 python scripts/assistant_review_real_nyc311.py
 python scripts/train_real_5class_model.py
 
-# Explicitly use the legacy four-class artifact only for comparison:
+# Use the NYC five-class artifact only for comparison:
+$env:DEPARTMENT_MODEL_VARIANT = "real_5class"
+python api/app.py
+
+# Use the legacy four-class artifact only for comparison:
 $env:DEPARTMENT_MODEL_VARIANT = "legacy_4class"
 python api/app.py
+
+The India department examples and sentiment examples are curated authored data.
+They are suitable for application prototyping, but production deployment should
+replace them with independently labelled Indian grievance records.
 
 # 5. Start the backend API
 cd api && python app.py

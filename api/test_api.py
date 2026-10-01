@@ -107,6 +107,12 @@ class TestUrgencyCalculator:
         assert priority == "LOW"
         assert urgency <= 5.0
 
+    def test_india_emergency_escalation(self):
+        text = "A live electric wire has fallen across the road and people could be electrocuted."
+        urgency, priority = UrgencyCalculator.calculate_urgency(text, "neutral", 0.95)
+        assert priority == "CRITICAL"
+        assert urgency >= 8.0
+
     def test_urgency_bounds(self):
         for text, sentiment, conf in [
             ("EMERGENCY!!!", "critical", 0.95),

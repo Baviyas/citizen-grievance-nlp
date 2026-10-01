@@ -27,8 +27,11 @@ models/final_models/
 models/best_model_pipeline.joblib
 models/label_encoder.joblib
 models/real_3class/
+models/india_departments/
+models/india_sentiment_model/
 evaluation/real_3class_*.csv
 evaluation/real_3class_*.json
+evaluation/india_department_holdout.csv
 
 # Model weights and binaries
 *.safetensors

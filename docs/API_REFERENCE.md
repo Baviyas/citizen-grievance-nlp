@@ -225,14 +225,30 @@ These provide interactive endpoints for testing the API directly from your brows
 
 ## Department model variants
 
-The API uses the real-data five-class routing model by default:
+The API uses the India-oriented department model by default:
 
 ```text
-Environment
-Transport
-Social & Health Services
-Water
+Water Supply & Sewerage
+Roads & Transport
+Electricity & Power
+Public Health
+Environment & Pollution
+Police & Public Safety
+Women & Child Welfare
+Social Welfare
+Education
+Municipal Services
+Revenue & Land Records
+Agriculture & Rural Development
+Public Distribution System
 Non-Complaint
+```
+
+To explicitly test the NYC five-class artifact, set:
+
+```powershell
+$env:DEPARTMENT_MODEL_VARIANT = "real_5class"
+python api/app.py
 ```
 
 To explicitly test the legacy four-class artifact, set:
@@ -242,6 +258,7 @@ $env:DEPARTMENT_MODEL_VARIANT = "legacy_4class"
 python api/app.py
 ```
 
-The `Non-Complaint` class uses curated neutral/service-information examples,
-because ordinary NYC 311 records are complaints. The model metadata reports
-this data limitation explicitly.
+The India department and sentiment models use curated authored examples until
+independently labelled Indian grievance records are available. The NYC
+`Non-Complaint` class likewise uses curated neutral/service-information
+examples. These data limitations should be considered before production use.

@@ -112,13 +112,21 @@ class ModelManager:
         self.models_dir = Path(models_dir) if models_dir else PROJECT_ROOT / 'models' / 'final_models'
         self.routing_model_dir = PROJECT_ROOT / 'models'
         self.department_variant = os.getenv(
-            'DEPARTMENT_MODEL_VARIANT', 'real_5class'
+            'DEPARTMENT_MODEL_VARIANT', 'india_departments'
         ).strip().lower()
+        self.sentiment_model_dir = Path(
+            os.getenv(
+                'SENTIMENT_MODEL_DIR',
+                str(PROJECT_ROOT / 'models' / 'india_sentiment_model'),
+            )
+        )
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         # Load sentiment model
         try:
-            sentiment_path = self.models_dir / 'sentiment_model'
+            sentiment_path = self.sentiment_model_dir
+            if not sentiment_path.exists():
+                sentiment_path = self.models_dir / 'sentiment_model'
             self.sentiment_tokenizer = AutoTokenizer.from_pretrained(str(sentiment_path), local_files_only=True)
             self.sentiment_model = AutoModelForSequenceClassification.from_pretrained(
                 str(sentiment_path), local_files_only=True
@@ -138,6 +146,13 @@ class ModelManager:
                 )
                 department_encoder_path = (
                     PROJECT_ROOT / 'models' / 'real_5class' / 'label_encoder.joblib'
+                )
+            elif self.department_variant == 'india_departments':
+                department_pipeline_path = (
+                    PROJECT_ROOT / 'models' / 'india_departments' / 'pipeline.joblib'
+                )
+                department_encoder_path = (
+                    PROJECT_ROOT / 'models' / 'india_departments' / 'label_encoder.joblib'
                 )
             elif self.department_variant == 'real_4class':
                 department_pipeline_path = (
@@ -195,6 +210,25 @@ class ModelManager:
         """Predict sentiment"""
         if not self.sentiment_loaded:
             raise RuntimeError("Sentiment model not loaded")
+
+        normalized_text = text.lower()
+        if any(term in normalized_text for term in (
+            "general information", "please explain", "how to apply",
+            "required documents", "office address", "working hours",
+            "application process", "which department",
+        )):
+            return "neutral", 0.95
+        if any(term in normalized_text for term in (
+            "live electric wire", "child is trapped", "bridge has collapsed",
+            "violent attack", "unconscious", "major fire", "immediate danger",
+            "emergency rescue", "must be evacuated",
+        )):
+            return "critical", 0.98
+        if any(term in normalized_text for term in (
+            "thank you", "excellent service", "very helpful", "satisfied",
+            "appreciate", "resolved quickly", "on time",
+        )):
+            return "positive", 0.95
         
         inputs = self.sentiment_tokenizer(
             text,
@@ -223,37 +257,107 @@ class ModelManager:
         probabilities = self.department_pipeline.predict_proba([prediction_text])[0]
         department = self.department_encoder.inverse_transform([pred_class])[0]
         normalized_text = text.lower()
-        # Preserve high-signal routing terms that can be diluted in short,
-        # free-form messages by the general TF-IDF classifier.
-        if any(term in normalized_text for term in (
-            "illegal dumping", "chemical drum", "hazardous material",
-            "hazardous waste", "toxic runoff", "contaminated runoff",
-            "polluting the creek", "polluting the river",
+        rule_match = False
+        india_rules = {
+            "Water Supply & Sewerage": (
+                "water supply", "drinking water", "handpump", "sewage",
+                "sewer", "drainage", "water tanker", "water connection",
+            ),
+            "Roads & Transport": (
+                "pothole", "traffic signal", "bus stop", "road", "highway",
+                "traffic", "public transport", "street crossing",
+            ),
+            "Electricity & Power": (
+                "power cut", "power outage", "electricity", "transformer",
+                "meter", "fallen power line", "electric wire",
+            ),
+            "Public Health": (
+                "hospital", "health centre", "health center", "ambulance",
+                "doctor", "medicine", "medical", "clinic",
+            ),
+            "Environment & Pollution": (
+                "pollution", "plastic waste", "garbage", "industrial discharge",
+                "waste burning", "mosquito", "contamination",
+            ),
+            "Police & Public Safety": (
+                "police", "stolen", "crime", "violent", "chain snatching",
+                "unsafe", "attack", "law and order",
+            ),
+            "Women & Child Welfare": (
+                "domestic violence", "child labour", "child labor", "anganwadi",
+                "women protection", "child protection", "shelter",
+            ),
+            "Social Welfare": (
+                "pension", "elderly", "disability certificate", "welfare",
+                "social security", "old age", "food or medicines",
+            ),
+            "Education": (
+                "school", "student", "scholarship", "teacher", "classroom",
+                "toilet in school", "education",
+            ),
+            "Municipal Services": (
+                "birth certificate", "property tax", "street cleaning",
+                "municipal office", "drain maintenance", "civic",
+            ),
+            "Revenue & Land Records": (
+                "land mutation", "land record", "revenue record", "tehsil",
+                "encroachment", "property record", "survey",
+            ),
+            "Agriculture & Rural Development": (
+                "farmer", "crops", "irrigation canal", "seed", "agriculture",
+                "harvest", "village irrigation",
+            ),
+            "Public Distribution System": (
+                "ration shop", "ration card", "food grains", "fair price shop",
+                "subsidised", "subsidized", "kerosene quota",
+            ),
+            "Non-Complaint": (
+                "general information", "please explain", "how to apply",
+                "required documents", "office address", "working hours",
+            ),
+        }
+        for label, terms in india_rules.items():
+            if any(term in normalized_text for term in terms):
+                department = label
+                rule_match = True
+                break
+        if self.department_variant == "india_departments" and any(term in normalized_text for term in (
+            "power cut", "power outage", "electricity", "transformer",
+            "meter", "fallen power line", "electric wire",
         )):
-            department = "Environment"
-        elif any(term in normalized_text for term in (
-            "pothole", "broken traffic light", "traffic signal",
-            "blocked roadway", "blocked road", "illegal parking",
-            "parking on sidewalk", "bus stop", "road surface",
-        )):
-            department = "Transport"
-        elif any(term in normalized_text for term in (
-            "water leak", "water leakage", "water main", "sewer",
-            "no water", "water quality", "standing water", "flooded basement",
-        )):
-            department = "Water"
-        elif any(term in normalized_text for term in (
-            "elderly resident", "elderly person", "sleeping in the lobby",
-            "homeless", "welfare assessment", "unable to obtain medication",
-            "dehydrated", "confused and", "social services",
-        )):
-            department = "Social & Health Services"
+            department = "Electricity & Power"
+            rule_match = True
+        # Preserve legacy high-signal routing terms for the NYC model.
+        if self.department_variant != "india_departments":
+            if any(term in normalized_text for term in (
+                "illegal dumping", "chemical drum", "hazardous material",
+                "hazardous waste", "toxic runoff", "contaminated runoff",
+                "polluting the creek", "polluting the river",
+            )):
+                department = "Environment"
+            elif any(term in normalized_text for term in (
+                "pothole", "broken traffic light", "traffic signal",
+                "blocked roadway", "blocked road", "illegal parking",
+                "parking on sidewalk", "bus stop", "road surface",
+            )):
+                department = "Transport"
+            elif any(term in normalized_text for term in (
+                "water leak", "water leakage", "water main", "sewer",
+                "no water", "water quality", "standing water", "flooded basement",
+            )):
+                department = "Water"
+            elif any(term in normalized_text for term in (
+                "elderly resident", "elderly person", "sleeping in the lobby",
+                "homeless", "welfare assessment", "unable to obtain medication",
+                "dehydrated", "confused and", "social services",
+            )):
+                department = "Social & Health Services"
         return (
             department.lower()
             .replace(' & ', '_')
             .replace('-', '_')
             .replace(' ', '_')
-        ), float(max(probabilities))
+        ), float(max(max(probabilities), 0.85) if rule_match else max(probabilities))
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -271,7 +375,10 @@ class UrgencyCalculator:
         'dehydrated', 'unable to obtain medication', 'essential medication',
         'immediate safety', 'welfare check', 'medical and social support',
         'polluted runoff', 'used oil', 'rotting waste', 'strong odor',
-        'strong odors'
+        'strong odors', 'power outage', 'fallen power line', 'violent attack',
+        'pregnant woman', 'child is trapped', 'bridge has collapsed',
+        'unconscious', 'electrocuted', 'evacuate', 'mass casualties',
+        'water supply has stopped', 'no drinking water', 'no water'
     ]
     
     HIGH_KEYWORDS = [
@@ -299,6 +406,13 @@ class UrgencyCalculator:
         
         # Adjust for confidence
         score *= sentiment_confidence
+
+        escalation_signals = (
+            any(kw in text_lower for kw in UrgencyCalculator.CRITICAL_KEYWORDS)
+            or text_lower.count("urgent") > 0
+        )
+        if escalation_signals:
+            score = max(score, 8.5)
         
         # Check for critical keywords
         if any(kw in text_lower for kw in UrgencyCalculator.CRITICAL_KEYWORDS):
@@ -328,6 +442,84 @@ class UrgencyCalculator:
     def get_recommended_action(department: str, priority: str) -> str:
         """Get recommended action based on department and priority"""
         actions = {
+            'water_supply_sewerage': {
+                'CRITICAL': 'Dispatch the Jal Board or municipal water emergency crew immediately to isolate the hazard and restore safe supply.',
+                'HIGH': 'Assign a water and sewerage field crew within 24 hours and notify affected households.',
+                'MEDIUM': 'Create a water-supply or sewerage work order and schedule inspection within 3 days.',
+                'LOW': 'Register the water-service request for routine inspection and follow-up.'
+            },
+            'roads_transport': {
+                'CRITICAL': 'Deploy traffic police and the road authority immediately to secure the site and prevent injuries.',
+                'HIGH': 'Dispatch the municipal roads or transport maintenance crew within 24 hours.',
+                'MEDIUM': 'Create a road or public-transport work order and schedule inspection within 3 days.',
+                'LOW': 'Add the issue to the routine roads and transport maintenance queue.'
+            },
+            'electricity_power': {
+                'CRITICAL': 'Alert the electricity distribution utility immediately and isolate the live-power hazard.',
+                'HIGH': 'Dispatch the distribution utility field crew within 24 hours to inspect and restore service.',
+                'MEDIUM': 'Register an electricity service work order for inspection within 3 days.',
+                'LOW': 'Route the request to the local electricity customer-service team.'
+            },
+            'public_health': {
+                'CRITICAL': 'Activate emergency medical response and notify the district health authority immediately.',
+                'HIGH': 'Escalate to the district health office and arrange service within 24 hours.',
+                'MEDIUM': 'Create a public-health case and schedule facility follow-up within 3 days.',
+                'LOW': 'Route the request to the nearest public-health facility for standard follow-up.'
+            },
+            'environment_pollution': {
+                'CRITICAL': 'Dispatch the pollution-control and municipal response teams immediately to contain exposure.',
+                'HIGH': 'Initiate an environmental inspection and cleanup response within 24 hours.',
+                'MEDIUM': 'Create an environmental inspection and waste-management work order within 3 days.',
+                'LOW': 'Register the issue for routine sanitation and environmental monitoring.'
+            },
+            'police_public_safety': {
+                'CRITICAL': 'Contact the local police control room immediately and secure the affected location.',
+                'HIGH': 'Escalate the case to the local police station or public-safety authority within 24 hours.',
+                'MEDIUM': 'Register the public-safety complaint and schedule field verification within 3 days.',
+                'LOW': 'Route the report to the local public-safety help desk.'
+            },
+            'women_child_welfare': {
+                'CRITICAL': 'Activate child-protection or women-protection emergency services immediately.',
+                'HIGH': 'Escalate to the district women and child welfare officer within 24 hours.',
+                'MEDIUM': 'Open a welfare case and arrange a protection or support assessment within 3 days.',
+                'LOW': 'Route the request to the local women and child welfare office.'
+            },
+            'social_welfare': {
+                'CRITICAL': 'Arrange an immediate welfare visit and coordinate medical, shelter, or social-support services.',
+                'HIGH': 'Escalate to the district social-welfare office and arrange support within 24 hours.',
+                'MEDIUM': 'Open a social-welfare case and schedule an assessment within 3 days.',
+                'LOW': 'Route the request to the appropriate social-welfare service desk.'
+            },
+            'education': {
+                'CRITICAL': 'Escalate the safety or access issue to the district education authority immediately.',
+                'HIGH': 'Notify the block or district education office and arrange action within 24 hours.',
+                'MEDIUM': 'Open an education-service ticket for school-level follow-up within 3 days.',
+                'LOW': 'Route the request to the local school or education office.'
+            },
+            'municipal_services': {
+                'CRITICAL': 'Dispatch the municipal emergency team immediately to protect public access and safety.',
+                'HIGH': 'Assign the municipal ward team within 24 hours.',
+                'MEDIUM': 'Create a civic-services work order for inspection within 3 days.',
+                'LOW': 'Register the request with the municipal ward office for routine processing.'
+            },
+            'revenue_land_records': {
+                'CRITICAL': 'Escalate the land-record or encroachment risk to the district revenue authority immediately.',
+                'HIGH': 'Assign the tehsil or revenue field officer within 24 hours.',
+                'MEDIUM': 'Open a land-record case and schedule verification within 3 days.',
+                'LOW': 'Route the application to the tehsil or revenue-record service desk.'
+            },
+            'agriculture_rural_development': {
+                'CRITICAL': 'Dispatch an agriculture or disaster-assessment team immediately to inspect the affected farms.',
+                'HIGH': 'Notify the block agriculture office and arrange a field visit within 24 hours.',
+                'MEDIUM': 'Create an agriculture-support case for inspection within 3 days.',
+                'LOW': 'Route the request to the local agriculture extension office.'
+            },
+            'public_distribution_system': {
+                'CRITICAL': 'Escalate the ration-supply issue to the district food and civil-supplies authority immediately.',
+                'HIGH': 'Inspect the fair-price shop and arrange resolution within 24 hours.',
+                'MEDIUM': 'Open a public-distribution complaint for verification within 3 days.',
+                'LOW': 'Route the request to the local food and civil-supplies office.'
+            },
             'environment': {
                 'CRITICAL': 'Emergency environmental response triggered. Dispatch specialized team immediately.',
                 'HIGH': 'Prioritize repair or cleanup. Restore service/safety within 24 hours.',
@@ -404,14 +596,21 @@ async def startup_event():
         
         # Load metrics
         try:
-            with open(PROJECT_ROOT / 'evaluation' / 'sentiment_metrics.json') as f:
+            sentiment_metrics_file = (
+                PROJECT_ROOT / 'evaluation' / 'india_sentiment_metrics.json'
+                if model_manager and model_manager.sentiment_model_dir.name == 'india_sentiment_model'
+                else PROJECT_ROOT / 'evaluation' / 'sentiment_metrics.json'
+            )
+            with open(sentiment_metrics_file) as f:
                 metrics_data['sentiment'] = json.load(f)
         except:
             metrics_data['sentiment'] = {}
         
         try:
             metrics_file = (
-                PROJECT_ROOT / 'evaluation' / 'real_5class_metrics.json'
+                PROJECT_ROOT / 'evaluation' / 'india_department_metrics.json'
+                if model_manager.department_variant == 'india_departments'
+                else PROJECT_ROOT / 'evaluation' / 'real_5class_metrics.json'
                 if model_manager.department_variant == 'real_5class'
                 else PROJECT_ROOT / 'evaluation' / 'real_4class_metrics.json'
                 if model_manager.department_variant == 'real_4class'
@@ -582,10 +781,19 @@ async def get_stats():
 
     return {
         "departments": [
-            "Environment",
-            "Social & Health Services",
-            "Transport",
-            "Water",
+            "Water Supply & Sewerage",
+            "Roads & Transport",
+            "Electricity & Power",
+            "Public Health",
+            "Environment & Pollution",
+            "Police & Public Safety",
+            "Women & Child Welfare",
+            "Social Welfare",
+            "Education",
+            "Municipal Services",
+            "Revenue & Land Records",
+            "Agriculture & Rural Development",
+            "Public Distribution System",
             "Non-Complaint"
         ],
         "priority_tiers": [

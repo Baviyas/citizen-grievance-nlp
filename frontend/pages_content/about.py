@@ -21,8 +21,8 @@ def show():
     ### Key Features
     
     ✨ **Intelligent Routing**
-    - Automatically categorizes complaints into 4 core departments
-    - Uses Logistic Regression with 99.8% accuracy
+    - Automatically categorizes complaints into India-oriented public-service departments
+    - Uses a hybrid TF-IDF routing model with high-signal India department rules
     - Real-time prediction on submitted complaints
     
     💭 **Sentiment Analysis**
@@ -107,31 +107,32 @@ def show():
     
     with col1:
         st.markdown("""
-        **Environment**
-        - Pollution complaints
-        - Waste management
-        - Environmental hazards
-        - Sanitation issues
+        **India civic services**
+        - Water supply and sewerage
+        - Roads and transport
+        - Electricity and power
+        - Environment and pollution
+        - Municipal services
         """)
     
     with col2:
         st.markdown("""
-        **Transport**
-        - Traffic issues
-        - Pothole reports
-        - Public transit complaints
-        - Parking violations
+        **Safety and welfare**
+        - Public health and hospitals
+        - Police and public safety
+        - Women and child welfare
+        - Social welfare
         """)
     
     col3, col4 = st.columns(2)
     
     with col3:
         st.markdown("""
-        **Social & Health Services**
-        - Healthcare access
-        - Social services
-        - Welfare concerns
-        - Public health issues
+        **Development and entitlements**
+        - Education
+        - Revenue and land records
+        - Agriculture and rural development
+        - Public distribution system
         """)
     
     with col4:

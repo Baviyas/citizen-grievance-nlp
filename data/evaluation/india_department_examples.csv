@@ -1,0 +1,71 @@
+grievance_text,expected_department
+"The municipal water supply has stopped for three days in our ward and tankers have not arrived.",Water Supply & Sewerage
+"A sewage line is overflowing near the government school and dirty water is entering homes.",Water Supply & Sewerage
+"The handpump in our village is broken and residents have no drinking water.",Water Supply & Sewerage
+"The road from the bus stand to the hospital is full of deep potholes and unsafe at night.",Roads & Transport
+"The city bus did not stop at the designated stop and the route has become unreliable.",Roads & Transport
+"A traffic signal is not working at the main junction and several near collisions have occurred.",Roads & Transport
+"Our neighbourhood has repeated power cuts and the transformer is making sparks.",Electricity & Power
+"The electricity meter is showing incorrect readings and the complaint has not been resolved.",Electricity & Power
+"A fallen power line is blocking the lane and poses an immediate danger to residents.",Electricity & Power
+"The primary health centre has no doctor for several weeks and patients are being turned away.",Public Health
+"The government hospital is overcrowded and essential medicines are unavailable.",Public Health
+"Please arrange an ambulance and urgent medical support for an injured person at the roadside.",Public Health
+"A group is burning plastic waste beside the market and thick smoke is affecting children.",Environment & Pollution
+"Industrial discharge is polluting the river and fish are dying near the village.",Environment & Pollution
+"Garbage has not been collected for two weeks and the colony has a severe mosquito problem.",Environment & Pollution
+"A stolen motorcycle was reported yesterday and the local police station has not registered the complaint.",Police & Public Safety
+"There is a violent fight outside the railway station and people need immediate police assistance.",Police & Public Safety
+"Streetlights are not working and repeated chain snatching is making the road unsafe.",Police & Public Safety
+"A woman facing domestic violence needs immediate protection and access to a shelter.",Women & Child Welfare
+"A child labourer is working at a roadside shop and needs intervention from child protection officers.",Women & Child Welfare
+"The anganwadi centre in our area has been closed and children are missing nutrition services.",Women & Child Welfare
+"My pension application has been pending for six months and I need help from the social welfare office.",Social Welfare
+"An elderly person living alone has no food or medicines and needs a welfare visit.",Social Welfare
+"The disability certificate support desk is not accepting applications from eligible residents.",Social Welfare
+"The government school has no usable toilets and students are being forced to leave campus.",Education
+"Scholarship payments have not reached eligible students despite repeated verification.",Education
+"A teacher vacancy has left the high school without science classes for the entire term.",Education
+"The municipal birth certificate portal is failing and residents cannot download certificates.",Municipal Services
+"Street cleaning and drain maintenance have not been done before the monsoon in our ward.",Municipal Services
+"The property tax payment counter is closed during published working hours.",Municipal Services
+"A land mutation request has been pending at the tehsil office and the records still show the previous owner.",Revenue & Land Records
+"There is an encroachment on government land and the survey request has not been acted on.",Revenue & Land Records
+"Please correct the spelling of my name in the revenue record and explain the required documents.",Revenue & Land Records
+"Crops were damaged by unseasonal rain and farmers need an inspection for compensation.",Agriculture & Rural Development
+"The village irrigation canal is blocked and farmers cannot water their fields.",Agriculture & Rural Development
+"The agriculture extension officer has not visited the cluster to distribute the approved seed information.",Agriculture & Rural Development
+"Our ration shop is refusing to provide the monthly wheat quota recorded on our ration cards.",Public Distribution System
+"The biometric machine at the fair price shop is not working and families are being denied food grains.",Public Distribution System
+"Please investigate diversion of subsidised kerosene from the public distribution outlet.",Public Distribution System
+"I need general information about applying for a residential parking permit and the required documents.",Non-Complaint
+"Please explain the eligibility and application process for a government scholarship.",Non-Complaint
+"I would like the office address and working hours for submitting a birth certificate request.",Non-Complaint
+"The ward office has not restored the public tap and residents are buying drinking water.",Water Supply & Sewerage
+"A manhole is overflowing beside the market and pedestrians are exposed to sewage.",Water Supply & Sewerage
+"The village road has broken completely after the monsoon and ambulances cannot pass.",Roads & Transport
+"Auto-rickshaws are refusing the permitted fare and blocking the hospital entrance.",Roads & Transport
+"The feeder has failed and the whole block has been without electricity since last night.",Electricity & Power
+"A damaged electricity pole is leaning over houses and must be secured.",Electricity & Power
+"The district clinic is refusing free tests promised under the public health programme.",Public Health
+"A child with a high fever needs urgent care but the nearest health centre is closed.",Public Health
+"Open waste is being dumped beside the lake and the smell is affecting the settlement.",Environment & Pollution
+"Dust from an uncovered construction site is causing breathing problems in nearby homes.",Environment & Pollution
+"Unknown people are threatening shopkeepers and residents need police patrolling.",Police & Public Safety
+"A missing child was last seen near the bus terminal and the family needs police help.",Police & Public Safety
+"A survivor of abuse needs counselling, legal support, and safe accommodation.",Women & Child Welfare
+"The local child-care centre has no food supplies for the registered children.",Women & Child Welfare
+"Widow pension payments have stopped even though the beneficiary completed verification.",Social Welfare
+"A homeless family needs temporary shelter and assistance accessing welfare benefits.",Social Welfare
+"The school roof leaks during rain and classrooms have become unsafe for students.",Education
+"The college has not issued certificates despite students completing the required course.",Education
+"The municipal road light has been off for a month and the ward complaint is pending.",Municipal Services
+"The ward office has not removed a fallen tree blocking the public footpath.",Municipal Services
+"A boundary dispute requires an official survey and correction in the land register.",Revenue & Land Records
+"The ownership details in the village record are incorrect after a recent sale.",Revenue & Land Records
+"Farmers need a field inspection after pests destroyed the cotton crop.",Agriculture & Rural Development
+"The rural development project has not built the approved check dam for irrigation.",Agriculture & Rural Development
+"The ration dealer is charging more than the printed price for subsidised grain.",Public Distribution System
+"Families are being asked for unofficial payments to release their monthly ration.",Public Distribution System
+"Can you tell me the helpline number for reporting a municipal water issue?",Non-Complaint
+"I need the application form and deadline for the district social-welfare scheme.",Non-Complaint

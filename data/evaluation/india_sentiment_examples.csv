@@ -1,0 +1,41 @@
+text,label
+"The municipal team repaired the streetlight quickly and the service was excellent.",positive
+"Thank you to the health centre staff for helping my family with patience.",positive
+"The water tanker arrived on time and solved the shortage in our neighbourhood.",positive
+"The school scholarship was credited and the officials were very helpful.",positive
+"I am satisfied with the response and appreciate the quick follow-up.",positive
+"The office provided clear information and treated us respectfully.",positive
+"The garbage collection service is regular and our area is clean.",positive
+"The electricity complaint was resolved today and the technician explained the repair.",positive
+"I want to share appreciation for the ambulance team that reached us quickly.",positive
+"The road repair work has improved travel for the entire village.",positive
+"Please provide the current status of my application and the expected processing time.",neutral
+"I need the office address and list of documents for this service.",neutral
+"The water connection request was submitted last week and is awaiting review.",neutral
+"I am asking how to update my details in the government record.",neutral
+"Please explain the procedure for applying for a ration card.",neutral
+"The school has scheduled a parent meeting for next Monday.",neutral
+"I would like to know which department handles street vendor licences.",neutral
+"The complaint was registered and the reference number was issued.",neutral
+"Can you tell me the working hours of the municipal office?",neutral
+"I am requesting information about the status of my pension application.",neutral
+"The garbage has not been collected for two weeks and the lane smells unbearable.",negative
+"The hospital refused treatment and staff spoke rudely to patients.",negative
+"Repeated power cuts have damaged appliances and no one answers the helpline.",negative
+"The road is full of potholes and buses are skipping the stop every day.",negative
+"Our ration shop is denying food grains despite a valid ration card.",negative
+"The school toilet is unusable and the administration has ignored complaints.",negative
+"The drainage is blocked and dirty water is entering our homes.",negative
+"The revenue office keeps delaying the land mutation without explanation.",negative
+"The public service portal has failed repeatedly and my application cannot be submitted.",negative
+"The local office closed early and residents were sent away without assistance.",negative
+"A live electric wire has fallen across the road and people could be electrocuted.",critical
+"A child is trapped in a burning building and emergency rescue is required immediately.",critical
+"Sewage is flooding the hospital entrance and patients are at risk of infection.",critical
+"A violent attack is happening outside the station and police assistance is needed now.",critical
+"The bridge has collapsed and vehicles are falling into the river.",critical
+"A pregnant woman needs urgent ambulance support after a serious accident.",critical
+"Chemical waste is leaking into the drinking water source near the village.",critical
+"A major fire is spreading through the market and residents must be evacuated.",critical
+"An elderly person is unconscious and has no one nearby to provide medical help.",critical
+"The transformer is exploding repeatedly and the entire street is in immediate danger.",critical
