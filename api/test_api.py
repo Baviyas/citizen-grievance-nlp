@@ -71,6 +71,18 @@ class TestPredictEndpoint:
         assert data["sentiment"] == "negative"
         assert data["priority"] == "HIGH"
 
+    def test_hinglish_accident_bleeding_routes_to_health(self):
+        text = "mere ghr ke bahar accident ho gaya h, or ek insaan ka khoon bht zada nikl rha h"
+        with TestClient(app, raise_server_exceptions=False) as test_client:
+            response = test_client.post("/predict", json={"complaint_text": text})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["predicted_department"] == "public_health"
+        assert data["department_confidence"] >= 0.85
+        assert data["sentiment"] == "critical"
+        assert data["priority"] == "CRITICAL"
+        assert data["urgency_score"] >= 8.0
+
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)

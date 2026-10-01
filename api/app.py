@@ -221,7 +221,9 @@ class ModelManager:
         if any(term in normalized_text for term in (
             "live electric wire", "child is trapped", "bridge has collapsed",
             "violent attack", "unconscious", "major fire", "immediate danger",
-            "emergency rescue", "must be evacuated",
+            "emergency rescue", "must be evacuated", "accident", "severe bleeding",
+            "heavy bleeding", "bleeding heavily", "blood loss", "khoon",
+            "bht zada khoon", "bahut zyada khoon", "zakhmi", "injured",
         )):
             return "critical", 0.98
         if any(term in normalized_text for term in (
@@ -283,7 +285,9 @@ class ModelManager:
             ),
             "Public Health": (
                 "hospital", "health centre", "health center", "ambulance",
-                "doctor", "medicine", "medical", "clinic",
+                "doctor", "medicine", "medical", "clinic", "accident",
+                "bleeding", "blood", "blood loss", "khoon", "zakhmi",
+                "injured", "insaan ka khoon",
             ),
             "Environment & Pollution": (
                 "pollution", "plastic waste", "garbage", "industrial discharge",
@@ -388,7 +392,10 @@ class UrgencyCalculator:
         'strong odors', 'power outage', 'fallen power line', 'violent attack',
         'pregnant woman', 'child is trapped', 'bridge has collapsed',
         'unconscious', 'electrocuted', 'evacuate', 'mass casualties',
-        'water supply has stopped', 'no drinking water', 'no water'
+        'water supply has stopped', 'no drinking water', 'no water',
+        'accident', 'severe bleeding', 'heavy bleeding', 'bleeding heavily',
+        'blood loss', 'khoon', 'bht zada khoon', 'bahut zyada khoon',
+        'zakhmi', 'injured'
     ]
     
     HIGH_KEYWORDS = [
