@@ -229,6 +229,13 @@ class ModelManager:
             "appreciate", "resolved quickly", "on time",
         )):
             return "positive", 0.95
+        if any(term in normalized_text for term in (
+            "parked", "double parked", "double-parked", "illegal parking",
+            "blocked road", "blocked roadway", "no access", "cannot get out",
+            "nikalne ki jagah nahi", "nikalne ki jagah nhi", "raasta band",
+            "raasta blocked", "gadiya parked", "gaadi parked",
+        )):
+            return "negative", 0.90
         
         inputs = self.sentiment_tokenizer(
             text,
@@ -265,7 +272,10 @@ class ModelManager:
             ),
             "Roads & Transport": (
                 "pothole", "traffic signal", "bus stop", "road", "highway",
-                "traffic", "public transport", "street crossing",
+                "traffic", "public transport", "street crossing", "parked",
+                "parking", "double parked", "double-parked", "blocked road",
+                "blocked roadway", "no access", "cannot get out",
+                "nikalne ki jagah", "raasta", "gadiya", "gaadi",
             ),
             "Electricity & Power": (
                 "power cut", "power outage", "electricity", "transformer",
@@ -384,7 +394,9 @@ class UrgencyCalculator:
     HIGH_KEYWORDS = [
         'broken', 'not working', 'damaged', 'issue', 'problem',
         'no response', 'poor', 'bad', 'failed', 'blocked',
-        'overflowing', 'no access', 'danger'
+        'overflowing', 'no access', 'danger', 'parked', 'parking',
+        'double parked', 'double-parked', 'cannot get out',
+        'nikalne ki jagah', 'raasta band', 'raasta blocked'
     ]
     
     @staticmethod

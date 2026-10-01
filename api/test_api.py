@@ -57,6 +57,20 @@ class TestPredictEndpoint:
             response = client.post("/predict", json={"complaint_text": complaint})
             assert response.status_code in [200, 503]
 
+    def test_hinglish_blocked_parking_routes_to_roads(self):
+        text = (
+            "mere ghr ke bahar bht saari gadiya parked h nikalne ki jagah nhi h, "
+            "jaldi aa kr inhe hatao or sahi karo raasta"
+        )
+        with TestClient(app, raise_server_exceptions=False) as test_client:
+            response = test_client.post("/predict", json={"complaint_text": text})
+        assert response.status_code == 200
+        data = response.json()
+        assert data["predicted_department"] == "roads_transport"
+        assert data["department_confidence"] >= 0.85
+        assert data["sentiment"] == "negative"
+        assert data["priority"] == "HIGH"
+
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)
