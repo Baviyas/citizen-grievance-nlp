@@ -63,6 +63,7 @@ def _map_predict_to_grievance(response: Dict[str, Any], description: str) -> Dic
         "grievance_id": response.get("grievance_id") or f"GRV-{uuid.uuid4().hex[:8].upper()}",
         "description": description,
         "predicted_department": response.get("predicted_department"),
+        "supporting_departments": response.get("supporting_departments", []),
         "confidence": round(float(response.get("department_confidence", response.get("confidence", 0.0))), 4),
         "sentiment": response.get("sentiment", "unknown"),
         "sentiment_confidence": round(

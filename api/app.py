@@ -58,6 +58,7 @@ class PredictionResponse(BaseModel):
     """Schema for prediction response"""
     complaint_text: str
     predicted_department: str
+    supporting_departments: List[str] = Field(default_factory=list)
     department_confidence: float
     sentiment: str
     sentiment_confidence: float
@@ -372,6 +373,25 @@ class ModelManager:
             .replace('-', '_')
             .replace(' ', '_')
         ), float(max(max(probabilities), 0.85) if rule_match else max(probabilities))
+
+    @staticmethod
+    def get_supporting_departments(text: str, primary_department: str) -> List[str]:
+        """Identify departments that should coordinate on multi-agency emergencies."""
+        normalized_text = text.lower()
+        emergency_scene = any(term in normalized_text for term in (
+            "accident", "road accident", "traffic accident", "hit by",
+            "blood loss", "severe bleeding", "heavy bleeding", "bleeding heavily",
+            "khoon", "zakhmi", "injured", "unconscious",
+        ))
+        if not emergency_scene:
+            return []
+
+        departments = [
+            "roads_transport",
+            "police_public_safety",
+            "public_health",
+        ]
+        return [department for department in departments if department != primary_department]
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -696,6 +716,10 @@ async def predict_single(request: ComplaintRequest):
         # Get predictions
         sentiment, sentiment_conf = model_manager.predict_sentiment(request.complaint_text)
         department, department_conf = model_manager.predict_department(request.complaint_text)
+        supporting_departments = model_manager.get_supporting_departments(
+            request.complaint_text,
+            department,
+        )
         
         # Calculate urgency and priority
         urgency_score, priority = UrgencyCalculator.calculate_urgency(
@@ -713,6 +737,7 @@ async def predict_single(request: ComplaintRequest):
         return PredictionResponse(
             complaint_text=request.complaint_text,
             predicted_department=department,
+            supporting_departments=supporting_departments,
             department_confidence=round(float(department_conf), 4),
             sentiment=sentiment,
             sentiment_confidence=round(float(sentiment_conf), 4),
@@ -759,6 +784,10 @@ async def predict_batch(request: BatchPredictionRequest):
             # Get predictions
             sentiment, sentiment_conf = model_manager.predict_sentiment(complaint_text)
             department, department_conf = model_manager.predict_department(complaint_text)
+            supporting_departments = model_manager.get_supporting_departments(
+                complaint_text,
+                department,
+            )
             
             # Calculate urgency
             urgency_score, priority = UrgencyCalculator.calculate_urgency(
@@ -773,6 +802,7 @@ async def predict_batch(request: BatchPredictionRequest):
             predictions.append(PredictionResponse(
                 complaint_text=complaint_text,
                 predicted_department=department,
+                supporting_departments=supporting_departments,
                 department_confidence=round(float(department_conf), 4),
                 sentiment=sentiment,
                 sentiment_confidence=round(float(sentiment_conf), 4),

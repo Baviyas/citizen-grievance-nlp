@@ -82,6 +82,10 @@ class TestPredictEndpoint:
         assert data["sentiment"] == "critical"
         assert data["priority"] == "CRITICAL"
         assert data["urgency_score"] >= 8.0
+        assert data["supporting_departments"] == [
+            "roads_transport",
+            "police_public_safety",
+        ]
 
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}

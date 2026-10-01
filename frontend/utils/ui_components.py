@@ -43,6 +43,13 @@ def render_grievance_card(grievance: Dict[str, Any]) -> None:
             }
             st.metric("Priority", f"{priority_colors.get(priority, '')} {priority}")
 
+        supporting_departments = grievance.get("supporting_departments", [])
+        if supporting_departments:
+            st.write(
+                "**Coordinating Departments:** "
+                + ", ".join(supporting_departments)
+            )
+
         st.caption(
             f"Sentiment confidence: {grievance.get('sentiment_confidence', 0.0):.2f}%"
         )

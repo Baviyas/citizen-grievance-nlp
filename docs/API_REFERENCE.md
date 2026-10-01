@@ -129,6 +129,7 @@ curl -X POST http://localhost:8000/predict \
 {
   "complaint_text": "Road has huge pothole. URGENT!",
   "predicted_department": "Transport",
+  "supporting_departments": [],
   "department_confidence": 0.9542,
   "sentiment": "critical",
   "sentiment_confidence": 0.9123,
@@ -168,6 +169,7 @@ curl -X POST http://localhost:8000/batch_predict \
     {
       "complaint_text": "Road has huge pothole. URGENT!",
       "predicted_department": "Transport",
+      "supporting_departments": [],
       "department_confidence": 0.9542,
       "sentiment": "critical",
       "sentiment_confidence": 0.9123,
@@ -181,6 +183,12 @@ curl -X POST http://localhost:8000/batch_predict \
   "processing_time": 0.123
 }
 ```
+
+For multi-agency emergencies, `predicted_department` is the primary responder and
+`supporting_departments` lists departments that should coordinate. For example,
+an accident with severe bleeding is routed primarily to `public_health`, with
+`roads_transport` and `police_public_safety` included for scene control and
+traffic/public-safety response.
 
 ---
 
